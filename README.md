@@ -1,202 +1,497 @@
 # Photobooth Zidan
 
-Photobooth Zidan adalah aplikasi PWA kiosk berbasis Vanilla HTML, CSS, dan JavaScript ES Modules. Mode aktif sementara adalah QR-only: user memilih frame, membayar QRIS statis sebesar Rp15.000, menunjukkan bukti ke kasir, mengambil 4 foto webcam berurutan, menggabungkan semua foto ke frame PNG transparan, lalu menerima QR Code Cloudinary dan download lokal.
+Photobooth Zidan adalah aplikasi **Progressive Web App (PWA)** berbasis Vanilla HTML, CSS, dan JavaScript ES Modules yang dirancang untuk penggunaan photobooth mandiri atau kiosk.
 
-## Arsitektur
+Dalam satu sesi, pengguna dapat:
 
-Frontend berjalan sebagai SPA satu halaman dengan state sederhana di `src/js/state/app-state.js`. Perpindahan layar dikelola oleh `navigateTo(screenName)` di `src/js/router.js`.
+1. Memilih desain frame.
+2. Membayar melalui QRIS statis sebesar Rp15.000.
+3. Meminta kasir mengonfirmasi pembayaran.
+4. Mengambil empat foto menggunakan webcam.
+5. Mengulang sesi foto maksimal dua kali.
+6. Mendapatkan satu photo strip.
+7. Mengunduh hasil melalui QR Code atau tombol download.
 
-Backend berada di folder `api/` sebagai Vercel Serverless Functions untuk upload foto sementara, storage delete, dan cleanup. Integrasi Resend tetap ada di source, tetapi pengiriman email dinonaktifkan selama `ENABLE_EMAIL_DELIVERY=false`. Tidak ada database permanen untuk user, foto, atau pembayaran.
+Aplikasi tidak menggunakan database permanen untuk menyimpan data pengguna, pembayaran, atau foto.
 
-Pembayaran tidak memakai endpoint API. Aplikasi hanya menampilkan gambar QRIS statis dari `public/payment/qris-shopee.png`; kasir memverifikasi pembayaran secara manual melalui aplikasi Shopee Partner di luar sistem.
+---
 
-## Enam Layar
+## Fitur Utama
 
-1. `SCREEN_FRAME`: memilih frame dari `public/frames/`.
-2. `SCREEN_PAYMENT`: menampilkan harga Rp15.000, QRIS statis, instruksi pembayaran, status `Menunggu konfirmasi kasir`, dan tombol konfirmasi manual kasir.
-3. `SCREEN_CAMERA`: meminta izin webcam, preview mirror, lalu mengambil 4 foto berurutan dengan countdown 3-2-1 untuk setiap foto.
-4. `SCREEN_REVIEW`: preview satu photo strip final berisi 4 foto dan retake maksimal 2 kali untuk mengulang seluruh rangkaian.
-5. `SCREEN_SUCCESS`: preview, QR Code dari URL Cloudinary, download lokal, dan countdown reset 15 menit.
+- PWA yang dapat dipasang pada perangkat.
+- Tampilan SPA tanpa perpindahan halaman.
+- Pemilihan frame PNG transparan.
+- Pembayaran QRIS statis.
+- Konfirmasi pembayaran manual oleh kasir.
+- Empat kali pengambilan foto dalam satu sesi.
+- Countdown sebelum setiap pengambilan foto.
+- Preview kamera dengan efek mirror.
+- Compositing foto menggunakan HTML5 Canvas.
+- Retake seluruh sesi maksimal dua kali.
+- Upload sementara ke Cloudinary.
+- QR Code untuk membuka hasil foto.
+- Download photo strip.
+- Reset aplikasi otomatis setelah 15 menit.
+- Tidak menggunakan database permanen.
+- Responsif untuk desktop, tablet, dan mode kiosk.
 
-`SCREEN_INPUT` tetap ada di source code untuk pengiriman email nanti, tetapi dilewati saat `VITE_ENABLE_EMAIL_DELIVERY=false`.
+---
 
-## Pembayaran
+## Alur Aplikasi
 
-Harga satu sesi foto didefinisikan terpusat di `src/js/config.js`:
+### 1. Pilih Frame
 
-```js
-export const PHOTO_PRICE = 15000;
+Pengguna memilih desain frame dari folder:
+
+```text
+public/frames/
 ```
 
-File QRIS harus diletakkan di:
+### 2. Pembayaran
+
+Aplikasi menampilkan:
+
+- Harga sesi sebesar Rp15.000.
+- Gambar QRIS statis.
+- Instruksi pembayaran.
+- Tombol konfirmasi kasir.
+
+Pembayaran diperiksa secara manual oleh kasir melalui aplikasi Shopee Partner.
+
+### 3. Ambil Foto
+
+Aplikasi mengambil empat foto secara berurutan:
+
+```text
+Foto 1 → slot paling atas
+Foto 2 → slot kedua
+Foto 3 → slot ketiga
+Foto 4 → slot paling bawah
+```
+
+Setiap pengambilan foto menggunakan countdown:
+
+```text
+3 → 2 → 1
+```
+
+### 4. Review
+
+Pengguna dapat:
+
+- Melanjutkan menggunakan hasil foto.
+- Mengulang seluruh rangkaian empat foto.
+
+Kesempatan retake maksimal dua kali.
+
+### 5. Hasil
+
+Aplikasi akan:
+
+- Mengupload photo strip ke Cloudinary.
+- Membuat QR Code dari URL hasil upload.
+- Menampilkan preview photo strip.
+- Menyediakan tombol download.
+- Mereset sesi otomatis setelah 15 menit.
+
+---
+
+## Tech Stack
+
+### Frontend
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- JavaScript ES Modules
+- HTML5 Canvas
+- MediaDevices API
+- Web App Manifest
+- Service Worker
+- Vite
+
+### Backend
+
+- Vercel Serverless Functions
+- Cloudinary
+- Node.js
+
+---
+
+## Instalasi
+
+Clone repository:
+
+```bash
+git clone <repository-url>
+cd photobooth-zidan
+```
+
+Install dependency:
+
+```bash
+npm install
+```
+
+Jalankan development server:
+
+```bash
+npm run dev
+```
+
+Buka URL yang muncul di terminal, biasanya:
+
+```text
+http://localhost:5173
+```
+
+Webcam dapat digunakan melalui `localhost` atau koneksi HTTPS.
+
+---
+
+## Perintah Project
+
+```bash
+npm run dev
+```
+
+Menjalankan development server.
+
+```bash
+npm run build
+```
+
+Membuat production build.
+
+```bash
+npm run preview
+```
+
+Menampilkan hasil production build secara lokal.
+
+Jika Vercel CLI sudah dikonfigurasi:
+
+```bash
+npm run dev:vercel
+```
+
+Menjalankan project dengan lingkungan yang menyerupai Vercel Serverless Functions.
+
+---
+
+## Environment Variables
+
+Salin file:
+
+```text
+.env.example
+```
+
+menjadi:
+
+```text
+.env
+```
+
+Isi konfigurasi berikut:
+
+```env
+STORAGE_PROVIDER=cloudinary
+
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+PHOTO_TTL_MINUTES=15
+MAX_UPLOAD_SIZE_MB=10
+
+CRON_SECRET=
+
+ENABLE_EMAIL_DELIVERY=false
+VITE_ENABLE_EMAIL_DELIVERY=false
+```
+
+File `.env` berisi credential rahasia dan tidak boleh dimasukkan ke GitHub.
+
+Pastikan `.gitignore` memiliki:
+
+```gitignore
+.env
+.env.local
+.env.*.local
+```
+
+---
+
+## Konfigurasi QRIS
+
+Masukkan gambar QRIS ke:
 
 ```text
 public/payment/qris-shopee.png
 ```
 
-Aplikasi menampilkan QRIS tersebut tanpa crop, filter, atau kompresi tambahan. Jika file belum tersedia atau gagal dimuat, layar pembayaran menampilkan placeholder `Gambar QRIS belum tersedia` dan mencatat path error di console.
+Harga satu sesi diatur secara terpusat pada:
 
-Pembayaran diverifikasi manual oleh kasir:
+```text
+src/js/config.js
+```
 
-- User scan QRIS dan membayar Rp15.000.
-- User menunjukkan bukti pembayaran kepada kasir.
-- Kasir memeriksa transaksi di aplikasi Shopee Partner.
-- Tombol `Pembayaran Sudah Dikonfirmasi Kasir` hanya boleh ditekan setelah kasir memastikan pembayaran diterima.
-- Aplikasi menyimpan status sementara di memory state:
+```js
+export const PHOTO_PRICE = 15000;
+```
+
+Aplikasi tidak terhubung langsung dengan API ShopeePay, Midtrans, atau Xendit.
+
+Konfirmasi pembayaran dilakukan secara manual oleh kasir.
+
+---
+
+## Menambahkan Frame
+
+Masukkan file frame PNG transparan ke:
+
+```text
+public/frames/
+```
+
+Kemudian daftarkan frame tersebut pada konfigurasi frame di:
+
+```text
+src/js/config.js
+```
+
+Setiap frame harus memiliki konfigurasi area penempatan foto karena posisi slot dapat berbeda pada setiap desain.
+
+Contoh:
 
 ```js
 {
-  provider: "static_qris",
-  amount: 15000,
-  status: "manually_confirmed",
-  confirmedAt: new Date().toISOString()
+  id: "frame-01",
+  name: "Frame 01",
+  source: "/frames/frame-01.png",
+  slots: [
+    { x: 100, y: 100, width: 480, height: 380 },
+    { x: 100, y: 500, width: 480, height: 380 },
+    { x: 100, y: 900, width: 480, height: 380 },
+    { x: 100, y: 1300, width: 480, height: 380 }
+  ]
 }
 ```
 
-Aplikasi tidak terhubung ke API ShopeePay, tidak memakai Midtrans, tidak memakai Xendit, tidak memiliki polling, webhook, SDK payment, database pembayaran, input kode transaksi, atau upload bukti transfer.
+Ukuran canvas hasil akhir mengikuti resolusi asli frame yang dipilih.
 
-## Install dan Development
+---
 
-```bash
-npm install
-npm run dev
-npm run dev:vercel
-npm run build
-npm run preview
-```
+## Proses Photo Strip
 
-Buka URL dari Vite, biasanya `http://localhost:5173`. Project ini juga memiliki middleware dev Vite untuk endpoint `/api`, sehingga flow upload QR-only bisa diuji dengan `npm run dev`. Untuk meniru Vercel Serverless Functions lebih dekat, gunakan `npm run dev:vercel` jika Vercel CLI tersedia.
+Setiap foto disimpan sementara sebagai `Blob` di memory browser.
 
-Webcam bisa diuji di `localhost` atau HTTPS.
+Setelah empat foto selesai:
 
-## Capture dan Compositing
+1. Canvas dibuat berdasarkan ukuran asli frame.
+2. Setiap foto digambar ke slot masing-masing.
+3. Foto menggunakan metode crop `cover`.
+4. PNG frame digambar sebagai lapisan paling atas.
+5. Canvas dikonversi menjadi photo strip final.
 
-Satu sesi normal mengambil 4 foto berbeda:
+Foto mentah dan hasil sementara tidak disimpan di `localStorage`.
 
-1. Foto 1 masuk slot paling atas.
-2. Foto 2 masuk slot kedua.
-3. Foto 3 masuk slot ketiga.
-4. Foto 4 masuk slot paling bawah.
+---
 
-Setiap capture disimpan sementara di memory sebagai `Blob` terpisah di `capturedShots`. Setelah 4 foto lengkap, Canvas membuat output sesuai ukuran asli frame terpilih, menggambar tiap foto ke slot dengan crop `cover`, lalu menggambar PNG frame satu kali di lapisan paling atas.
+## Cloudinary
 
-Retake berarti mengulang seluruh rangkaian 4 foto. Kesempatan retake maksimal 2 kali.
+Cloudinary digunakan untuk menyimpan hasil photo strip sementara.
 
-## QR Code
+Konfigurasi:
 
-QR Code tidak pernah berisi Base64, data URL, Blob URL, localhost, atau isi binary foto. QR hanya dibuat jika backend mengembalikan URL Cloudinary valid dengan hostname `res.cloudinary.com`. Dalam `STORAGE_PROVIDER=mock`, public URL berupa data URL untuk development sehingga QR sengaja tidak dibuat.
-
-Download lokal tetap memakai object URL dari `finalCompositeBlob`.
-
-## Environment Variables
-
-Salin `.env.example` menjadi `.env` untuk development lokal, lalu isi sesuai provider storage/email yang digunakan. Jangan commit `.env`.
-
-Variable utama:
-
-```text
-STORAGE_PROVIDER=cloudinary
-ENABLE_EMAIL_DELIVERY=false
-VITE_ENABLE_EMAIL_DELIVERY=false
-PHOTO_TTL_MINUTES=15
-MAX_UPLOAD_SIZE_MB=10
-```
-
-Untuk production, isi credential Cloudinary, Resend, dan `CRON_SECRET` di dashboard Vercel.
-
-## Deploy ke Vercel
-
-1. Push project ke repository.
-2. Import project di Vercel.
-3. Isi environment variables production.
-4. Upload file QRIS production ke `public/payment/qris-shopee.png`.
-5. Deploy.
-6. Tambahkan Vercel Cron atau scheduler eksternal untuk memanggil `GET /api/cron/cleanup` dengan header `x-cron-secret`.
-
-## Menambahkan Frame PNG
-
-Letakkan PNG transparan di `public/frames/`. Update daftar frame di `src/js/config.js`.
-
-Rekomendasi ukuran frame: rasio konsisten, misalnya 1200x1800 px. Ukuran canvas hasil foto mengikuti ukuran asli frame yang dipilih.
-
-## Integrasi Cloudinary
-
-Struktur provider ada di `api/services/storage/`. Gunakan:
-
-```text
+```env
 STORAGE_PROVIDER=cloudinary
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 ```
 
-File diberi nama unik UUID di folder `photobooth-temp/`. Aplikasi menargetkan TTL 15 menit, tetapi Cloudinary tidak dianggap otomatis menghapus file. Cleanup harus dijalankan melalui endpoint cron.
-
-## Integrasi Resend
-
-Service email berada di `api/services/email/resend-service.js` dan tetap dipertahankan, tetapi tidak dijalankan selama:
+File diupload menggunakan nama unik ke folder:
 
 ```text
+photobooth-temp/
+```
+
+QR Code hanya dibuat dari URL publik Cloudinary seperti:
+
+```text
+https://res.cloudinary.com/...
+```
+
+QR Code tidak menggunakan:
+
+- Base64
+- Data URL
+- Blob URL
+- localhost
+- Isi binary foto
+
+---
+
+## Temporary Storage
+
+Target masa aktif foto adalah 15 menit.
+
+Frontend menampilkan countdown selama 15 menit pada layar hasil. Setelah waktu habis, aplikasi akan:
+
+- Menghapus state sesi.
+- Menghapus object URL lokal.
+- Menghapus hasil foto dari memory browser.
+- Menghentikan timer yang masih aktif.
+- Kembali ke halaman pemilihan frame.
+
+Reset aplikasi tidak otomatis menjamin file Cloudinary sudah terhapus. Penghapusan file Cloudinary ditangani melalui endpoint cleanup terpisah.
+
+---
+
+## Cleanup
+
+Endpoint cleanup:
+
+```text
+GET /api/cron/cleanup
+```
+
+Endpoint dilindungi menggunakan:
+
+```env
+CRON_SECRET=
+```
+
+Pada production, endpoint dapat dipanggil menggunakan Vercel Cron atau scheduler lain untuk menghapus file sementara yang sudah melewati batas waktu.
+
+Jangan menambahkan `CRON_SECRET` asli ke repository.
+
+---
+
+## Fitur Email
+
+Integrasi email tersedia sebagai fitur opsional, tetapi saat ini dinonaktifkan.
+
+```env
 ENABLE_EMAIL_DELIVERY=false
 VITE_ENABLE_EMAIL_DELIVERY=false
 ```
 
-Untuk mengaktifkan lagi nanti:
+Saat fitur email dinonaktifkan:
+
+- Form nama dan email tidak ditampilkan.
+- Backend tidak mengirim email.
+- Tidak ada notifikasi email pada layar hasil.
+- Pengguna menerima foto melalui QR Code dan tombol download.
+
+---
+
+## Deploy ke Vercel
+
+1. Push project ke repository GitHub.
+2. Import repository ke Vercel.
+3. Isi environment variables melalui dashboard Vercel.
+4. Pastikan gambar QRIS production sudah tersedia.
+5. Pastikan frame dapat dimuat dengan benar.
+6. Deploy project.
+7. Uji kamera melalui koneksi HTTPS.
+8. Konfigurasikan scheduler cleanup jika diperlukan.
+
+Credential tidak boleh ditulis langsung di source code atau repository.
+
+---
+
+## Struktur Folder Utama
 
 ```text
-RESEND_API_KEY=
-EMAIL_FROM=
-EMAIL_PROVIDER=resend
-ENABLE_EMAIL_DELIVERY=true
-VITE_ENABLE_EMAIL_DELIVERY=true
+photobooth-zidan/
+├── api/
+│   ├── photo/
+│   ├── storage/
+│   ├── cron/
+│   └── services/
+├── public/
+│   ├── frames/
+│   ├── payment/
+│   ├── icons/
+│   ├── manifest.webmanifest
+│   └── sw.js
+├── src/
+│   ├── css/
+│   └── js/
+├── index.html
+├── package.json
+├── vite.config.js
+├── vercel.json
+└── README.md
 ```
 
-## Temporary Storage dan Cleanup
-
-Foto tidak disimpan di localStorage atau database. Frontend memegang `Blob` dan object URL di memory selama sesi. Backend mengupload file sementara dan mengembalikan:
-
-```json
-{
-  "publicUrl": "...",
-  "publicId": "photobooth-temp/...",
-  "expiresAt": "..."
-}
-```
-
-Endpoint `GET /api/cron/cleanup` dilindungi `CRON_SECRET`. Karena tidak ada database, cleanup production harus mengambil daftar aset dari provider berdasarkan folder dan waktu upload, lalu menghapus aset lebih tua dari 15 menit.
-
-## Retake
-
-Foto pertama tidak dihitung sebagai retake. User hanya dapat menekan `Ulang Foto` sebanyak 2 kali. Setiap retake menghapus seluruh `capturedShots`, object URL preview, dan final composite, lalu mengambil ulang 4 foto dari awal. Setelah kesempatan habis, tombol retake dinonaktifkan.
+---
 
 ## Keamanan dan Privasi
 
-- Foto diproses di browser memakai Canvas.
+- Tidak menggunakan database permanen.
+- Foto mentah hanya disimpan sementara di memory browser.
 - Foto tidak disimpan di `localStorage`.
-- Status pembayaran hanya berada di state sementara dan hilang saat reset.
-- Pembayaran diverifikasi manual oleh kasir di luar aplikasi.
-- API secret hanya berada di backend.
-- Upload divalidasi MIME type dan ukuran maksimal.
-- Nama/email hanya divalidasi ketika fitur email diaktifkan kembali.
-- Endpoint photo/storage/cron memakai `Cache-Control: no-store`.
-- Cleanup dilindungi constant-time secret comparison.
-- Security headers dasar disiapkan di `vercel.json`.
+- API secret hanya digunakan di backend.
+- Upload divalidasi berdasarkan MIME type dan ukuran file.
+- Status pembayaran hanya disimpan selama sesi berlangsung.
+- File `.env` tidak boleh di-push ke repository.
+- Endpoint cleanup dilindungi menggunakan secret.
+- Response API sensitif menggunakan `Cache-Control: no-store`.
+
+---
 
 ## Known Limitations
 
-- File `public/payment/qris-shopee.png` harus disediakan manual.
-- Mock storage memakai memory proses, sehingga hilang saat server restart.
-- Cloudinary cleanup perlu implementasi listing Admin API sesuai konfigurasi akun.
-- Pengujian webcam membutuhkan browser di `localhost` atau HTTPS.
+- Pembayaran belum diverifikasi secara otomatis melalui API.
+- Verifikasi pembayaran memerlukan kasir.
+- File QRIS harus dimasukkan secara manual.
+- Setiap frame membutuhkan konfigurasi slot foto.
+- Cleanup Cloudinary memerlukan scheduler production.
+- Webcam membutuhkan `localhost` atau HTTPS.
+- Fitur email masih dinonaktifkan.
+- Masa aktif URL Cloudinary bergantung pada proses cleanup backend.
 
-## Production Readiness Checklist
+---
 
-- Pastikan file QRIS production sudah benar dan mudah dipindai.
-- Isi semua environment variables production untuk storage/cleanup.
-- Uji Resend sender/domain sebelum mengaktifkan kembali email.
-- Aktifkan Cloudinary provider.
-- Implementasikan listing cleanup Cloudinary dan scheduler.
-- Uji batas ukuran upload dan layout preview photo strip.
-- Uji service worker cache setelah deploy.
-- Pastikan kiosk browser memberi izin kamera.
-- Pastikan SOP kasir jelas sebelum tombol konfirmasi pembayaran digunakan.
+## Production Checklist
+
+Sebelum digunakan pada kiosk production:
+
+- [ ] Pastikan QRIS dapat dipindai.
+- [ ] Pastikan harga yang ditampilkan sudah benar.
+- [ ] Pastikan semua frame memiliki konfigurasi slot.
+- [ ] Pastikan credential Cloudinary aktif.
+- [ ] Pastikan hasil upload menghasilkan URL HTTPS.
+- [ ] Pastikan QR Code dapat dibuka dari perangkat lain.
+- [ ] Pastikan countdown berjalan tepat 15 menit.
+- [ ] Pastikan aplikasi tidak reset sebelum waktunya.
+- [ ] Pastikan tombol selesai mereset seluruh sesi.
+- [ ] Pastikan kamera memiliki izin permanen pada perangkat kiosk.
+- [ ] Pastikan service worker tidak menyajikan cache lama.
+- [ ] Pastikan cleanup Cloudinary berjalan.
+- [ ] Pastikan `.env` tidak masuk ke GitHub.
+- [ ] Pastikan kasir memahami prosedur konfirmasi pembayaran.
+
+---
+
+## Status Project
+
+Versi saat ini menggunakan alur:
+
+```text
+Pilih Frame
+→ Bayar QRIS
+→ Konfirmasi Kasir
+→ Ambil 4 Foto
+→ Review
+→ Upload Cloudinary
+→ QR Code
+→ Download
+→ Reset 15 Menit
+```
+
+Fitur email masih tersedia di source code, tetapi sedang dinonaktifkan.
