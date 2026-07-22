@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1f7a8c" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/icon-192.png" />
+    <title>Photobooth Zidan</title>
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Kiosk Photobooth</p>
+          <h1>Photobooth Zidan</h1>
+        </div>
+        <div id="payment-badge" class="mock-badge">Verifikasi kasir</div>
+      </header>
+
+      <nav class="progress" id="progress-stepper" aria-label="Progress photobooth"></nav>
+
+      <main class="stage" aria-live="polite">
+        <section id="screen-frame" class="screen active" data-screen="SCREEN_FRAME"></section>
+        <section id="screen-payment" class="screen" data-screen="SCREEN_PAYMENT"></section>
+        <section id="screen-camera" class="screen" data-screen="SCREEN_CAMERA"></section>
+        <section id="screen-review" class="screen" data-screen="SCREEN_REVIEW"></section>
+        <section id="screen-input" class="screen" data-screen="SCREEN_INPUT"></section>
+        <section id="screen-success" class="screen" data-screen="SCREEN_SUCCESS"></section>
+      </main>
+
+      <footer class="app-footer">Foto diproses sementara di browser dan link hasil berlaku 15 menit.</footer>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loading-message">Memproses...</p>
+    </div>
+    <div id="toast-root" class="toast-root" aria-live="assertive"></div>
+
+    <script type="module" src="/src/js/main.js"></script>
+  </body>
+</html>
